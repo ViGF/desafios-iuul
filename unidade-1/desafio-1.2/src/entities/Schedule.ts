@@ -1,3 +1,5 @@
+//import { Patient } from "./Patient";
+
 type ScheduleProps = {
   cpf: string;
   date: string;
@@ -16,41 +18,6 @@ class Schedule {
     this._date = date;
     this._startHour = startHour;
     this._endHour = endHour;
-  }
-
-  static validateCpf(cpf: string) {
-    const lengthIsCorrect = cpf.length == 11
-    const digitsEquals = cpf.split('').filter(digit => digit == cpf[0]).length
-    const allDigitsAreNotEquals = digitsEquals < 11
-    const digits = cpf.split('')
-    let j = 0
-    let k = 0
-  
-    for (let index = 10; index > 1; index--) {
-      j += parseInt(digits[Math.abs(index - 10)]) * index;
-    }
-  
-    if ((j % 11) > 1) {
-      j = 11 - (j % 11)
-    } else {
-      j = 0
-    }
-  
-    for (let index = 10; index > 0; index--) {
-      k += parseInt(digits[Math.abs(index - 10)]) * (index + 1);
-    }
-  
-    if ((k % 11) > 1) {
-      k = 11 - (k % 11)
-    } else {
-      k = 0
-    }
-  
-    if (lengthIsCorrect && allDigitsAreNotEquals && (j.toString() == digits[9]) && (k.toString() == digits[10])) {
-      return cpf
-    } else {
-     throw new Error("Erro: CPF inválido!")
-    }
   }
 
   //Retorna a data do agendamento em formato de objeto Date
@@ -158,7 +125,7 @@ class Schedule {
 }
 
 // try {
-//   const cpf = Schedule.validateCpf("16933203042");
+//   const cpf = Patient.validateCpf("16933203042");
 //   const date = Schedule.validateDate("14/03/2024");
 //   const startHour = Schedule.validateStartHour("1400", date);
 //   const endHour = Schedule.validateEndHour("1430", startHour);
