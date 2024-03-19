@@ -1,15 +1,13 @@
-//import { Patient } from "./Patient";
-
-type ScheduleProps = {
+export type ScheduleProps = {
   cpf: string;
-  date: string;
+  date: Date;
   startHour: string;
   endHour: string;
 };
 
-class Schedule {
+export class Schedule {
   private _cpf: string;
-  private _date: string;
+  private _date: Date;
   private _startHour: string;
   private _endHour: string;
 
@@ -27,14 +25,31 @@ class Schedule {
     return new Date(`${month}/${day}/${year}`);
   }
 
-  static validateDate(date: string) {
+  //Converte um objeto data em string Ex.: 10/07/2000
+  static dateObjectToString(date: Date) {
+    const dateDay = date.getDate();
+    const dateMonth = date.getMonth();
+    const dateYear = date.getFullYear();
+
+    const dateString = `${dateDay}/${dateMonth}/${dateYear}`;
+    return dateString;
+  }
+
+  static validateDate(date: string, dateInPassToCompare?: string) {
     const scheduleDate = Schedule.getDateObjet(date);
-    const actualDate = new Date(new Date().toDateString());
+    const actualDate = dateInPassToCompare
+      ? Schedule.getDateObjet(dateInPassToCompare)
+      : new Date(new Date().toDateString());
 
     if (scheduleDate >= actualDate) {
-      return date;
+      return {
+        value: date,
+      };
     } else {
-      throw new Error("Erro: a data deve ser futura");
+      return {
+        value: null,
+        error: "Erro: a data deve ser futura",
+      };
     }
   }
 
@@ -46,15 +61,18 @@ class Schedule {
     const dayNow = new Date().getDate();
 
     if (startHourHour < 8) {
-      throw new Error(
-        "Erro: o horário de funcionamento é entre às 8:00h e 19:00h"
-      );
+      return {
+        value: null,
+        error: "Erro: o horário de funcionamento é entre às 8:00h e 19:00h",
+      };
     }
 
     if (startHourMinutes % 15 != 0) {
-      throw new Error(
-        "Erro: o horário deve ser definido de 15 em 15 minutos. Ex.: 0845"
-      );
+      return {
+        value: null,
+        error:
+          "Erro: o horário deve ser definido de 15 em 15 minutos. Ex.: 0845",
+      };
     }
 
     //Verifica se a hora está no futuro somente se o dia do agendamento coincidir com o dia atual
@@ -67,12 +85,19 @@ class Schedule {
       );
 
       if (scheduleDateWithStartHour > dateNow) {
-        return startHour;
+        return {
+          value: startHour,
+        };
       } else {
-        throw new Error("Erro: a hora deve estar no futuro");
+        return {
+          value: null,
+          error: "Erro: a hora deve estar no futuro",
+        };
       }
     } else {
-      return startHour;
+      return {
+        value: startHour,
+      };
     }
   }
 
@@ -83,27 +108,38 @@ class Schedule {
     const startHourMinutes = +startHour.slice(2, 4);
 
     if (endHourHour > 19 || (endHourHour == 19 && endHourMinutes != 0)) {
-      throw new Error(
-        "Erro: o horário de funcionamento é entre às 8:00h e 19:00h"
-      );
+      return {
+        value: null,
+        error: "Erro: o horário de funcionamento é entre às 8:00h e 19:00h",
+      };
     }
 
     if (endHourMinutes % 15 != 0) {
-      throw new Error(
-        "Erro: o horário deve ser definido de 15 em 15 minutos. Ex.: 0845"
-      );
+      return {
+        value: null,
+        error:
+          "Erro: o horário deve ser definido de 15 em 15 minutos. Ex.: 0845",
+      };
     }
 
     if (endHourHour > startHourHour) {
       return endHour;
     } else if (endHourHour == startHourHour) {
       if (endHourMinutes > startHourMinutes) {
-        return endHour;
+        return {
+          value: endHour,
+        };
       } else {
-        throw new Error("Erro: a hora final deve ser depois da hora inicial");
+        return {
+          value: null,
+          error: "Erro: a hora final deve ser depois da hora inicial",
+        };
       }
     } else {
-      throw new Error("Erro: a hora final deve ser depois da hora inicial");
+      return {
+        value: null,
+        error: "Erro: a hora final deve ser depois da hora inicial",
+      };
     }
   }
 

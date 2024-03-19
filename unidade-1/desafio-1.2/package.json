@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "tsx src/index.ts"
+    "dev": "tsx src/view/index.ts"
   },
   "keywords": [],
   "author": "",
@@ -11,7 +11,11 @@
   "description": "",
   "devDependencies": {
     "@types/node": "^20.11.25",
+    "@types/prompt-sync": "^4.2.3",
     "tsx": "^4.7.1",
     "typescript": "^5.4.2"
+  },
+  "dependencies": {
+    "prompt-sync": "^4.2.0"
   }
 }
