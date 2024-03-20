@@ -1,7 +1,7 @@
 import { PatientRepository } from "../../repositories/patient/PatientRepository";
 import { ScheduleRepository } from "../../repositories/schedule/ScheduleRepository";
 import { DeleteScheduleByUser } from "../schedule/delete-schedule-by-user";
-import { VerifyPatientFutureSchedule } from "../schedule/verify-patient-future-schedule";
+import { ListPatientFutureSchedule } from "../schedule/list-patient-future-schedule";
 
 export class DeletePatient {
   constructor(
@@ -10,12 +10,12 @@ export class DeletePatient {
   ) {}
 
   execute(cpf: string) {
-    const verifyPatientFutureSchedule = new VerifyPatientFutureSchedule(
+    const listPatientFutureSchedule = new ListPatientFutureSchedule(
       this.patientRepository,
       this.scheduleRepository
     ).execute(cpf);
 
-    if (verifyPatientFutureSchedule) {
+    if (listPatientFutureSchedule.length > 0) {
       return "Erro: paciente está agendado";
     }
 

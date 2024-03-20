@@ -3,24 +3,24 @@ import { ScheduleRepository } from "./ScheduleRepository";
 
 export class InMemoryScheduleRepository implements ScheduleRepository {
   schedules: Schedule[] = [
-    new Schedule({
-      cpf: "18219822821",
-      date: new Date("02/20/2024"),
-      startHour: "0800",
-      endHour: "0900",
-    }),
-    new Schedule({
-      cpf: "31081862807",
-      date: new Date("04/20/2024"),
-      startHour: "0900",
-      endHour: "1000",
-    }),
-    new Schedule({
-      cpf: "26050431850",
-      date: new Date("04/20/2024"),
-      startHour: "1000",
-      endHour: "1100",
-    }),
+    // new Schedule({
+    //   cpf: "18219822821",
+    //   date: new Date("02/20/2024"),
+    //   startHour: "0800",
+    //   endHour: "0900",
+    // }),
+    // new Schedule({
+    //   cpf: "31081862807",
+    //   date: new Date("04/20/2024"),
+    //   startHour: "0845",
+    //   endHour: "0930",
+    // }),
+    // new Schedule({
+    //   cpf: "26050431850",
+    //   date: new Date("04/20/2024"),
+    //   startHour: "1000",
+    //   endHour: "1040",
+    // }),
   ];
 
   include(schedule: Schedule): void {

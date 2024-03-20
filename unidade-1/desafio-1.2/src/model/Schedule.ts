@@ -10,12 +10,14 @@ export class Schedule {
   private _date: Date;
   private _startHour: string;
   private _endHour: string;
+  private _duration: string;
 
   constructor({ cpf, date, startHour, endHour }: ScheduleProps) {
     this._cpf = cpf;
     this._date = date;
     this._startHour = startHour;
     this._endHour = endHour;
+    this._duration = Schedule.calculateDuration(startHour, endHour);
   }
 
   //Retorna a data do agendamento em formato de objeto Date
@@ -25,10 +27,17 @@ export class Schedule {
     return new Date(`${month}/${day}/${year}`);
   }
 
+  static hourToPresentableFormat(completeHour: string) {
+    const hours = completeHour.slice(0, 2);
+    const minutes = completeHour.slice(2, 4);
+
+    return `${hours}:${minutes}`;
+  }
+
   //Converte um objeto data em string Ex.: 10/07/2000
   static dateObjectToString(date: Date) {
     const dateDay = date.getDate();
-    const dateMonth = date.getMonth();
+    const dateMonth = String(date.getMonth() + 1).padStart(2, "0");
     const dateYear = date.getFullYear();
 
     const dateString = `${dateDay}/${dateMonth}/${dateYear}`;
@@ -54,11 +63,11 @@ export class Schedule {
   }
 
   static validateStartHour(startHour: string, date: string) {
-    const scheduleDay = Schedule.getDateObjet(date).getDate();
+    const scheduleDate = Schedule.getDateObjet(date);
+
     const startHourHour = +startHour.slice(0, 2);
     const startHourMinutes = +startHour.slice(2, 4);
     const dateNow = new Date();
-    const dayNow = new Date().getDate();
 
     if (startHourHour < 8) {
       return {
@@ -76,7 +85,7 @@ export class Schedule {
     }
 
     //Verifica se a hora está no futuro somente se o dia do agendamento coincidir com o dia atual
-    if (scheduleDay == dayNow) {
+    if (scheduleDate == dateNow) {
       //Cria uma nova data com o dia atual e define a hora e os minutos conforme horário do agendamento
       let scheduleDateWithStartHour = new Date(
         new Date(new Date().setHours(startHourHour)).setMinutes(
@@ -143,6 +152,27 @@ export class Schedule {
     }
   }
 
+  static calculateDuration(startCompleteHour: string, endCompleteHour: string) {
+    const startMinutes = Number(startCompleteHour.slice(2, 4));
+    const startHourInMinutes = Number(startCompleteHour.slice(0, 2)) * 60 + startMinutes;
+
+    const endMinutes = Number(endCompleteHour.slice(2, 4));
+    const endHourInMinutes = Number(endCompleteHour.slice(0, 2)) * 60 + endMinutes;
+
+    const minutesDifference = Math.abs(endMinutes - startMinutes);
+    const durationInMinutes = endHourInMinutes - startHourInMinutes
+
+    const durationString = `${String(Math.floor(durationInMinutes / 60)).padStart(
+      2,
+      "0"
+    )}:${String(durationInMinutes % 60).padStart(2, "0")}`;
+
+    //525
+    //570
+
+    return durationString
+  }
+
   get cpf() {
     return this._cpf;
   }
@@ -158,20 +188,8 @@ export class Schedule {
   get endHour() {
     return this._endHour;
   }
+
+  get duration() {
+    return this._duration
+  }
 }
-
-// try {
-//   const cpf = Patient.validateCpf("16933203042");
-//   const date = Schedule.validateDate("14/03/2024");
-//   const startHour = Schedule.validateStartHour("1400", date);
-//   const endHour = Schedule.validateEndHour("1430", startHour);
-
-//   const schedule = new Schedule({ cpf, date, startHour, endHour });
-
-//   console.log(schedule.cpf);
-//   console.log(schedule.date);
-//   console.log(schedule.startHour);
-//   console.log(schedule.endHour);
-// } catch (error: any) {
-//   console.log(error.message);
-// }

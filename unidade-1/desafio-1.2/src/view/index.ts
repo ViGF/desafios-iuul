@@ -9,6 +9,7 @@ const prompt = PromptSync({ sigint: true });
 const inMemoryPatientRepository = new InMemoryPatientRepository();
 const inMemoryScheduleRepository = new InMemoryScheduleRepository();
 const mainMenu = new MainMenu();
+
 const defaultMenu = new MenuPresentation(
   mainMenu,
   prompt,

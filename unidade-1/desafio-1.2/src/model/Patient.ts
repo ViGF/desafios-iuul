@@ -2,17 +2,20 @@ export type PatientProps = {
   cpf: string;
   name: string;
   birthdate: string;
+  age: number;
 };
 
 export class Patient {
   private _cpf: string;
   private _name: string;
   private _birthdate: string;
+  private _age: number;
 
   constructor({ cpf, name, birthdate }: PatientProps) {
     this._cpf = cpf;
     this._name = name;
     this._birthdate = birthdate;
+    this._age = Patient.calculateAge(birthdate);
   }
 
   static validateCpf(cpf: string) {
@@ -53,16 +56,16 @@ export class Patient {
     ) {
       return {
         value: cpf,
-      }
+      };
     } else {
       return {
         value: null,
         error: "Erro: CPF inválido!",
-      }
+      };
     }
   }
 
-  static validateName(name: string) {
+  private static validateName(name: string) {
     if (name.length > 4) {
       return {
         value: name,
@@ -75,10 +78,37 @@ export class Patient {
     }
   }
 
+  private static getDateObjet(date: string) {
+    const [day, month, year] = date.split("/");
+
+    return new Date(`${month}/${day}/${year}`);
+  }
+
+  static calculateAge(birthdate: string) {
+    const birthdateObject = this.getDateObjet(birthdate);
+    const actualDate = new Date();
+
+    const actualYear = actualDate.getFullYear()
+    const actualMonth = actualDate.getMonth()
+    const actualDay = actualDate.getDate()
+
+    const birthdateYear = birthdateObject.getFullYear()
+    const birthdateMonth = birthdateObject.getMonth()
+    const birthdateDay = birthdateObject.getDate()
+
+    let age = (actualYear - birthdateYear) - 1;
+
+    if (actualMonth == birthdateMonth || actualMonth > birthdateMonth) {
+      if (actualDay == birthdateDay || actualDay > birthdateDay) {
+        age += 1
+      }
+    }
+
+    return age
+  }
+
   static validateBirthdate(birthdate: string) {
-    const [birthday, birthdayMonth, birthdayYear] = birthdate.split("/");
-    const actualYear = new Date().getFullYear();
-    const age = actualYear - Number(birthdayYear);
+    const age = this.calculateAge(birthdate);
 
     if (age > 12) {
       return {
@@ -103,18 +133,8 @@ export class Patient {
   get birthdate() {
     return this._birthdate;
   }
+
+  get age() {
+    return this._age
+  }
 }
-
-// try {
-//   const name = Patient.validateName("carro");
-//   const cpf = Patient.validateCpf("16933203042");
-//   const birthdate = Patient.validateBirthdate("04/08/2010");
-
-//   const patient = new Patient({ cpf, name, birthdate });
-
-//   console.log(patient.cpf);
-//   console.log(patient.name);
-//   console.log(patient.birthdate);
-// } catch (error: any) {
-//   console.log(error.message);
-// }

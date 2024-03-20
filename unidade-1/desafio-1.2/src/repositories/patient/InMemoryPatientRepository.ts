@@ -3,21 +3,21 @@ import { PatientRepository } from "./PatientRepository";
 
 export class InMemoryPatientRepository implements PatientRepository {
   patients: Patient[] = [
-    new Patient({
-      cpf: "18219822821",
-      name: "Marcelo",
-      birthdate: "10/08/2000",
-    }),
-    new Patient({
-      cpf: "31081862807",
-      name: "Paula",
-      birthdate: "10/08/2000",
-    }),
-    new Patient({
-      cpf: "26050431850",
-      name: "Andre",
-      birthdate: "10/08/2000",
-    }),
+    // new Patient({
+    //   cpf: "18219822821",
+    //   name: "Marcelo",
+    //   birthdate: "10/08/2000",
+    // }),
+    // new Patient({
+    //   cpf: "31081862807",
+    //   name: "Paula",
+    //   birthdate: "10/08/2000",
+    // }),
+    // new Patient({
+    //   cpf: "26050431850",
+    //   name: "Andre",
+    //   birthdate: "10/08/2000",
+    // }),
   ];
 
   include(patient: Patient): void {

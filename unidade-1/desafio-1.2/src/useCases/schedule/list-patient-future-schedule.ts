@@ -2,7 +2,7 @@ import { Schedule } from "../../model/Schedule";
 import { PatientRepository } from "../../repositories/patient/PatientRepository";
 import { ScheduleRepository } from "../../repositories/schedule/ScheduleRepository";
 
-export class VerifyPatientFutureSchedule {
+export class ListPatientFutureSchedule {
   constructor(
     private patientRepository: PatientRepository,
     private scheduleRepository: ScheduleRepository
@@ -12,21 +12,21 @@ export class VerifyPatientFutureSchedule {
     const patient = this.patientRepository.findUnique(cpf);
 
     if (!patient) {
-      return;
+      return [];
     }
 
     const patientSchedule = this.scheduleRepository.findByUser(cpf);
-    let scheduleInFuture = false
+    const schedulesInFuture: Schedule[] = []
 
     patientSchedule.map((schedule) => {
       const dateString = Schedule.dateObjectToString(schedule.date)
 
       //Verifica se a data está no futuro
       if (Schedule.validateDate(dateString)?.value) {
-        scheduleInFuture = true;
+        schedulesInFuture.push(schedule)
       }
     });
 
-    return scheduleInFuture;
+    return schedulesInFuture;
   }
 }

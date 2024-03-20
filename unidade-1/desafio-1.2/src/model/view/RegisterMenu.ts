@@ -8,6 +8,9 @@ import { ListPatientsByCPF } from "../../useCases/patient/list-patients-by-cpf";
 import { VerifyPatientExists } from "../../useCases/patient/verify-patient-exists";
 import { DeletePatientForm } from "./form/DeletePatientForm";
 import { DeletePatient } from "../../useCases/patient/delete-patient";
+import { ListPatientFutureSchedule } from "../../useCases/schedule/list-patient-future-schedule";
+import { Schedule } from "../Schedule";
+import fixedWidthString from "fixed-width-string";
 
 export class RegisterMenu extends Menu {
   constructor() {
@@ -24,7 +27,9 @@ export class RegisterMenu extends Menu {
     switch (option) {
       case 1:
         console.clear();
-        const patientInfo = new InsertPatientForm(menuPresentation.prompt).execute();
+        const patientInfo = new InsertPatientForm(
+          menuPresentation.prompt
+        ).execute();
         const includePatient = new IncludePatient(
           menuPresentation.patientRepository
         );
@@ -39,7 +44,9 @@ export class RegisterMenu extends Menu {
         const verifyPatientExists = new VerifyPatientExists(
           menuPresentation.patientRepository
         );
-        const deletePatientForm = new DeletePatientForm(menuPresentation.prompt);
+        const deletePatientForm = new DeletePatientForm(
+          menuPresentation.prompt
+        );
         const cpf = deletePatientForm.execute(verifyPatientExists);
 
         if (cpf) {
@@ -48,14 +55,14 @@ export class RegisterMenu extends Menu {
             menuPresentation.scheduleRepository
           );
           const deletePatientResult = deletePatient.execute(cpf);
-  
+
           console.log();
           console.log(deletePatientResult);
           console.log();
         } else {
-          console.log()
-          console.log("Erro: não foi possível excluir o paciente")
-          console.log()
+          console.log();
+          console.log("Erro: não foi possível excluir o paciente");
+          console.log();
         }
 
         break;
@@ -65,8 +72,45 @@ export class RegisterMenu extends Menu {
           menuPresentation.patientRepository
         );
 
+        //Retornar os pacientes ordenados por CPF
         const listPatientsByCPFResult = listPatientsByCPF.execute();
-        console.table(listPatientsByCPFResult);
+
+        const listPatientsFutureSchedule = new ListPatientFutureSchedule(
+          menuPresentation.patientRepository,
+          menuPresentation.scheduleRepository
+        );
+
+        console.log("------------------------------------------------------");
+        console.log("CPF          Nome                      Dt.Nasc.  Idade");
+        console.log("------------------------------------------------------");
+        listPatientsByCPFResult.map((patient) => {
+          const futureSchedule = listPatientsFutureSchedule.execute(
+            patient.cpf
+          );
+          console.log(
+            fixedWidthString(patient.cpf, 13) +
+              fixedWidthString(patient.name, 26) +
+              fixedWidthString(patient.birthdate, 11) +
+              fixedWidthString(patient.age.toString(), 2)
+          );
+          if (futureSchedule.length > 0) {
+            const startHour = futureSchedule[0].startHour;
+            const endHour = futureSchedule[0].endHour;
+            console.log(
+              fixedWidthString("", 13) +
+                "Agendado para: " +
+                Schedule.dateObjectToString(futureSchedule[0].date)
+            );
+            console.log(
+              fixedWidthString("", 13) +
+                `${Schedule.hourToPresentableFormat(
+                  startHour
+                )} às ${Schedule.hourToPresentableFormat(endHour)}
+            `
+            );
+          }
+        });
+        console.log("--------------------------------------------------");
         break;
       case 4:
         console.clear();
@@ -74,8 +118,49 @@ export class RegisterMenu extends Menu {
           menuPresentation.patientRepository
         );
 
+        //Retornar os pacientes ordenados por nome
         const listPatientsByNameResult = listPatientsByName.execute();
-        console.table(listPatientsByNameResult);
+        const listPatientsByNameFutureSchedule = new ListPatientFutureSchedule(
+          menuPresentation.patientRepository,
+          menuPresentation.scheduleRepository
+        );
+
+        console.log("------------------------------------------------------");
+        console.log("CPF          Nome                      Dt.Nasc.  Idade");
+        console.log("------------------------------------------------------");
+
+        listPatientsByNameResult.map((patient) => {
+          const futureSchedule = listPatientsByNameFutureSchedule.execute(
+            patient.cpf
+          );
+
+          console.log(
+            fixedWidthString(patient.cpf, 13) +
+              fixedWidthString(patient.name, 26) +
+              fixedWidthString(patient.birthdate, 11) +
+              fixedWidthString(patient.age.toString(), 2)
+          );
+
+          if (futureSchedule.length > 0) {
+            const startHour = futureSchedule[0].startHour;
+            const endHour = futureSchedule[0].endHour;
+
+            console.log(
+              fixedWidthString("", 13) +
+                "Agendado para: " +
+                Schedule.dateObjectToString(futureSchedule[0].date)
+            );
+            console.log(
+              fixedWidthString("", 13) +
+                `${startHour.slice(0, 2)}:${startHour.slice(
+                  2,
+                  4
+                )} às ${endHour.slice(0, 2)}:${endHour.slice(2, 4)}
+            `
+            );
+          }
+        });
+        console.log("--------------------------------------------------");
         break;
       case 5:
         const mainMenu = new MainMenu();

@@ -2,6 +2,7 @@ import { Prompt } from "prompt-sync";
 import { Menu } from "./Menu";
 import { PatientRepository } from "../../repositories/patient/PatientRepository";
 import { ScheduleRepository } from "../../repositories/schedule/ScheduleRepository";
+import { Patient } from "../Patient";
 
 export class MenuPresentation {
   private menuDisplayed: Menu | null;
@@ -41,7 +42,7 @@ export class MenuPresentation {
     return this._prompt;
   }
 
-  async init() {
+  init() {
     while (this.menu) {
       console.log(this.menu.title);
       for (let index = 0; index < this.menu.options.length; index++) {
