@@ -1,0 +1,27 @@
+{
+  "name": "desafio-1.2",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx src/view/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^20.11.25",
+    "@types/prompt-sync": "^4.2.3",
+    "dotenv": "^16.4.5",
+    "sequelize": "^6.37.3",
+    "tsx": "^4.7.1",
+    "typescript": "^5.4.2"
+  },
+  "dependencies": {
+    "fixed-width-string": "^2.0.0",
+    "pg": "^8.11.5",
+    "pg-hstore": "^2.3.4",
+    "prompt-sync": "^4.2.0",
+    "sequelize-cli": "^6.3.0"
+  }
+}
