@@ -9,5 +9,5 @@ module.exports = {
   define: {
     timestamps: true,
   },
-  logging: false
+  logging: false,
 };

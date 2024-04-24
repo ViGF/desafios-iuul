@@ -1,9 +1,12 @@
-import { ScheduleRepository } from "../../repositories/schedule/ScheduleRepository";
+//Não há mais a necessidade de apagar os agendamentos por usuário
+//pq o relacionamento no BD está com a configuração CASCADE
 
-export class DeleteScheduleByUser {
-  constructor(private scheduleRepository: ScheduleRepository) {}
+// import { ScheduleRepository } from "../../repositories/schedule/ScheduleRepository";
 
-  execute(cpf: string) {
-    this.scheduleRepository.deleteByUser(cpf)
-  }
-}
+// export class DeleteScheduleByUser {
+//   constructor(private scheduleRepository: ScheduleRepository) {}
+
+//   execute(cpf: string) {
+//     this.scheduleRepository.deleteByUser(cpf)
+//   }
+// }

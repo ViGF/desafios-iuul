@@ -84,7 +84,7 @@ export class Patient {
   }
 
   static calculateAge(birthdate: string) {
-    const birthdateObject = this.getDateObjet(birthdate);
+    const birthdateObject = new Date(birthdate);
     const actualDate = new Date();
 
     const actualYear = actualDate.getFullYear()

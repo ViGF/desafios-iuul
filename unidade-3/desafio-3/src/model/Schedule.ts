@@ -26,14 +26,7 @@ export class Schedule {
 
     return new Date(`${month}/${day}/${year}`);
   }
-
-  static hourToPresentableFormat(completeHour: string) {
-    const hours = completeHour.slice(0, 2);
-    const minutes = completeHour.slice(2, 4);
-
-    return `${hours}:${minutes}`;
-  }
-
+  
   //Converte um objeto data em string Ex.: 10/07/2000
   static dateObjectToString(date: Date) {
     const dateDay = date.getDate();
@@ -63,10 +56,17 @@ export class Schedule {
   }
 
   static validateStartHour(startHour: string, date: string) {
+    if (startHour.length != 5) {
+      return {
+        value: null,
+        error: "Erro: o horário de funcionamento deve estar no seguinte formato: 08:10",
+      };
+    }
+
     const scheduleDate = Schedule.getDateObjet(date);
 
     const startHourHour = +startHour.slice(0, 2);
-    const startHourMinutes = +startHour.slice(2, 4);
+    const startHourMinutes = +startHour.slice(3, 5);
     const dateNow = new Date();
 
     if (startHourHour < 8) {
@@ -80,7 +80,7 @@ export class Schedule {
       return {
         value: null,
         error:
-          "Erro: o horário deve ser definido de 15 em 15 minutos. Ex.: 0845",
+          "Erro: o horário deve ser definido de 15 em 15 minutos. Ex.: 08:45",
       };
     }
 
@@ -111,15 +111,22 @@ export class Schedule {
   }
 
   static validateEndHour(endHour: string, startHour: string) {
+    if (endHour.length != 5) {
+      return {
+        value: null,
+        error: "Erro: o horário de funcionamento deve estar no seguinte formato: 08:10",
+      };
+    }
+
     const endHourHour = +endHour.slice(0, 2);
-    const endHourMinutes = +endHour.slice(2, 4);
+    const endHourMinutes = +endHour.slice(3, 5);
     const startHourHour = +startHour.slice(0, 2);
-    const startHourMinutes = +startHour.slice(2, 4);
+    const startHourMinutes = +startHour.slice(3, 5);
 
     if (endHourHour > 19 || (endHourHour == 19 && endHourMinutes != 0)) {
       return {
         value: null,
-        error: "Erro: o horário de funcionamento é entre às 8:00h e 19:00h",
+        error: "Erro: o horário de funcionamento é entre às 08:00h e 19:00h",
       };
     }
 
@@ -153,22 +160,18 @@ export class Schedule {
   }
 
   static calculateDuration(startCompleteHour: string, endCompleteHour: string) {
-    const startMinutes = Number(startCompleteHour.slice(2, 4));
+    const startMinutes = Number(startCompleteHour.slice(3, 5));
     const startHourInMinutes = Number(startCompleteHour.slice(0, 2)) * 60 + startMinutes;
 
-    const endMinutes = Number(endCompleteHour.slice(2, 4));
+    const endMinutes = Number(endCompleteHour.slice(3, 5));
     const endHourInMinutes = Number(endCompleteHour.slice(0, 2)) * 60 + endMinutes;
 
-    const minutesDifference = Math.abs(endMinutes - startMinutes);
     const durationInMinutes = endHourInMinutes - startHourInMinutes
 
     const durationString = `${String(Math.floor(durationInMinutes / 60)).padStart(
       2,
       "0"
     )}:${String(durationInMinutes % 60).padStart(2, "0")}`;
-
-    //525
-    //570
 
     return durationString
   }

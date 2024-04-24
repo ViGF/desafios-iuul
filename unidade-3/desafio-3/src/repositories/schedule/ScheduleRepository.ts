@@ -1,11 +1,16 @@
-import { Schedule, ScheduleProps } from "../../model/Schedule";
+import { ModelStatic } from "sequelize";
+import { ScheduleProps } from "../../model/Schedule";
+import { DBSchedule } from "../../database/models/DBSchedule";
 
 export interface ScheduleRepository {
-  schedules: Schedule[];
+  model: ModelStatic<DBSchedule>;
 
-  include(schedule: Schedule): void;
-  findAll(): Schedule[];
-  delete(schedule: Omit<ScheduleProps, "endHour">): Schedule | void;
-  deleteByUser(cpf: string): void;
-  findByUser(cpf: string): Schedule[];
+  include(schedule: ScheduleProps): Promise<ScheduleProps | void>;
+  findByUser(cpf: string): Promise<ScheduleProps[]>;
+  findAll(): Promise<ScheduleProps[] | void>;
+  findByDate(startDate: Date, endDate: Date): Promise<ScheduleProps[] | void>;
+  findInFutureByUser(cpf: string): Promise<ScheduleProps[] | void>;
+  delete(schedule: Omit<ScheduleProps, "endHour">): Promise<number | void>;
+  deleteInFutureByUser(cpf: string): Promise<number | void>;
+  findConflict(scheduleProps: ScheduleProps): Promise<DBSchedule[] | void>
 }

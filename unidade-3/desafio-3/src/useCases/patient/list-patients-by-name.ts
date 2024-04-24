@@ -4,23 +4,13 @@ import { PatientRepository } from "../../repositories/patient/PatientRepository"
 export class ListPatientsByName {
   constructor(private patientRepository: PatientRepository) {}
 
-  execute(): Patient[] {
-    const patients = this.patientRepository.findAll();
+  async execute(): Promise<Patient[]> {
+    const patients = await this.patientRepository.findAllOrderByName();
 
-    patients.sort((a, b) => {
-      const nameA = a.name.toUpperCase(); // ignore upper and lowercase
-      const nameB = b.name.toUpperCase(); // ignore upper and lowercase
+    const patientsTransformed = patients.map(patient => {
+      return new Patient(patient)
+    })
 
-      if (nameA < nameB) {
-        return -1;
-      } else if (nameA > nameB) {
-        return 1;
-      }
-
-      // names must be equal
-      return 0;
-    });
-
-    return patients;
+    return patientsTransformed;
   }
 }

@@ -1,5 +1,5 @@
 import { Prompt } from "prompt-sync";
-import { Schedule, ScheduleProps } from "../../Schedule";
+import { Schedule } from "../../Schedule";
 import { Patient } from "../../Patient";
 
 export class InsertScheduleForm {
@@ -14,20 +14,20 @@ export class InsertScheduleForm {
 
     let date = this.prompt("Data: ");
     while (Schedule.validateDate(date) == null) {
-      console.log("Erro: nome inválido");
+      console.log("Erro: data inválida");
       date = this.prompt("Data: ");
     }
 
-    let startHour = this.prompt("Hora inicial: ");
+    let startHour = this.prompt("Hora inicial (Ex.: 08:45): ");
     while (Schedule.validateStartHour(startHour, date) == null) {
-      console.log("Erro: o paciente deve ter pelo menos 13 anos");
-      startHour = this.prompt("Data de nascimento: ");
+      console.log(Schedule.validateStartHour(startHour, date).error);
+      startHour = this.prompt("Hora inicial (Ex.: 08:45): ");
     }
 
-    let endHour = this.prompt("Hora final: ");
+    let endHour = this.prompt("Hora final (Ex.: 08:45): ");
     while (Schedule.validateEndHour(endHour, date) == null) {
-      console.log("Erro: o paciente deve ter pelo menos 13 anos");
-      endHour = this.prompt("Data de nascimento: ");
+      console.log(Schedule.validateStartHour(startHour, date).error);
+      endHour = this.prompt("Hora final (Ex.: 08:45): ");
     }
 
     return {
@@ -38,19 +38,3 @@ export class InsertScheduleForm {
     };
   }
 }
-
-// try {
-//   const cpf = Patient.validateCpf("16933203042");
-//   const date = Schedule.validateDate("14/03/2024");
-//   const startHour = Schedule.validateStartHour("1400", date);
-//   const endHour = Schedule.validateEndHour("1430", startHour);
-
-//   const schedule = new Schedule({ cpf, date, startHour, endHour });
-
-//   console.log(schedule.cpf);
-//   console.log(schedule.date);
-//   console.log(schedule.startHour);
-//   console.log(schedule.endHour);
-// } catch (error: any) {
-//   console.log(error.message);
-// }

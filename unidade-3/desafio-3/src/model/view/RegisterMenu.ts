@@ -47,14 +47,14 @@ export class RegisterMenu extends Menu {
         const deletePatientForm = new DeletePatientForm(
           menuPresentation.prompt
         );
-        const cpf = deletePatientForm.execute(verifyPatientExists);
+        const cpf = await deletePatientForm.execute(verifyPatientExists);
 
         if (cpf) {
           const deletePatient = new DeletePatient(
             menuPresentation.patientRepository,
             menuPresentation.scheduleRepository
           );
-          const deletePatientResult = deletePatient.execute(cpf);
+          const deletePatientResult = await deletePatient.execute(cpf);
 
           console.log();
           console.log(deletePatientResult);
@@ -67,100 +67,117 @@ export class RegisterMenu extends Menu {
 
         break;
       case 3:
-        console.clear();
+        //console.clear();
         const listPatientsByCPF = new ListPatientsByCPF(
           menuPresentation.patientRepository
         );
 
-        //Retornar os pacientes ordenados por CPF
-        const listPatientsByCPFResult = listPatientsByCPF.execute();
+        //Retorna os pacientes ordenados por CPF
+        const listPatientsByCPFResult = await listPatientsByCPF.execute();
 
-        const listPatientsFutureSchedule = new ListPatientFutureSchedule(
-          menuPresentation.patientRepository,
+        const listPatientFutureSchedule = new ListPatientFutureSchedule(
           menuPresentation.scheduleRepository
         );
 
         console.log("------------------------------------------------------");
         console.log("CPF          Nome                      Dt.Nasc.  Idade");
         console.log("------------------------------------------------------");
+
         listPatientsByCPFResult.map((patient) => {
-          const futureSchedule = listPatientsFutureSchedule.execute(
-            patient.cpf
-          );
           console.log(
             fixedWidthString(patient.cpf, 13) +
               fixedWidthString(patient.name, 26) +
-              fixedWidthString(patient.birthdate, 11) +
+              fixedWidthString(
+                Schedule.dateObjectToString(new Date(patient.birthdate)),
+                11
+              ) +
               fixedWidthString(patient.age.toString(), 2)
           );
-          if (futureSchedule.length > 0) {
-            const startHour = futureSchedule[0].startHour;
-            const endHour = futureSchedule[0].endHour;
-            console.log(
-              fixedWidthString("", 13) +
-                "Agendado para: " +
-                Schedule.dateObjectToString(futureSchedule[0].date)
-            );
-            console.log(
-              fixedWidthString("", 13) +
-                `${Schedule.hourToPresentableFormat(
-                  startHour
-                )} às ${Schedule.hourToPresentableFormat(endHour)}
-            `
-            );
-          }
+
+          const futureSchedules = listPatientFutureSchedule
+            .execute(patient.cpf)
+            .then((futureSchedules) => {
+              if (!futureSchedules) {
+                console.log(
+                  "Erro - não foi possível buscar pelos agendamentos do paciente"
+                );
+              } else if (futureSchedules.length > 0) {
+                const startHour = futureSchedules[0].startHour;
+                const endHour = futureSchedules[0].endHour;
+                console.log(
+                  fixedWidthString("", 13) +
+                    "Agendado para: " +
+                    Schedule.dateObjectToString(
+                      new Date(futureSchedules[0].date)
+                    )
+                );
+                console.log(
+                  fixedWidthString("", 13) +
+                    `${startHour} às ${endHour}
+              `
+                );
+              }
+            });
         });
-        console.log("--------------------------------------------------");
+        console.log("------------------------------------------------------");
         break;
       case 4:
-        console.clear();
+        //console.clear();
         const listPatientsByName = new ListPatientsByName(
           menuPresentation.patientRepository
         );
 
         //Retornar os pacientes ordenados por nome
-        const listPatientsByNameResult = listPatientsByName.execute();
+        const listPatientsByNameResult = await listPatientsByName.execute();
         const listPatientsByNameFutureSchedule = new ListPatientFutureSchedule(
-          menuPresentation.patientRepository,
           menuPresentation.scheduleRepository
         );
 
-        console.log("------------------------------------------------------");
-        console.log("CPF          Nome                      Dt.Nasc.  Idade");
-        console.log("------------------------------------------------------");
-
-        listPatientsByNameResult.map((patient) => {
-          const futureSchedule = listPatientsByNameFutureSchedule.execute(
-            patient.cpf
-          );
-
+        if (!listPatientsByNameResult) {
           console.log(
-            fixedWidthString(patient.cpf, 13) +
-              fixedWidthString(patient.name, 26) +
-              fixedWidthString(patient.birthdate, 11) +
-              fixedWidthString(patient.age.toString(), 2)
+            "Erro - não foi possível buscar as informações do paciente"
           );
+        } else {
+          console.log("------------------------------------------------------");
+          console.log("CPF          Nome                      Dt.Nasc.  Idade");
+          console.log("------------------------------------------------------");
 
-          if (futureSchedule.length > 0) {
-            const startHour = futureSchedule[0].startHour;
-            const endHour = futureSchedule[0].endHour;
+          listPatientsByNameResult.map(async (patient) => {
+            const futureSchedules =
+              await listPatientsByNameFutureSchedule.execute(patient.cpf);
 
             console.log(
-              fixedWidthString("", 13) +
-                "Agendado para: " +
-                Schedule.dateObjectToString(futureSchedule[0].date)
+              fixedWidthString(patient.cpf, 13) +
+                fixedWidthString(patient.name, 26) +
+                fixedWidthString(
+                  Schedule.dateObjectToString(new Date(patient.birthdate)),
+                  11
+                ) +
+                fixedWidthString(patient.age.toString(), 2)
             );
-            console.log(
-              fixedWidthString("", 13) +
-                `${startHour.slice(0, 2)}:${startHour.slice(
-                  2,
-                  4
-                )} às ${endHour.slice(0, 2)}:${endHour.slice(2, 4)}
-            `
-            );
-          }
-        });
-        console.log("--------------------------------------------------");
+
+            if (!futureSchedules) {
+              console.log(
+                "Erro - não foi possível buscar pelos agendamentos do paciente"
+              );
+            } else if (futureSchedules.length > 0) {
+              const startHour = futureSchedules[0].startHour;
+              const endHour = futureSchedules[0].endHour;
+              console.log(
+                fixedWidthString("", 13) +
+                  "Agendado para: " +
+                  Schedule.dateObjectToString(new Date(futureSchedules[0].date))
+              );
+              console.log(
+                fixedWidthString("", 13) +
+                  `${startHour} às ${endHour}
+              `
+              );
+            }
+          });
+          console.log("--------------------------------------------------");
+        }
+
         break;
       case 5:
         const mainMenu = new MainMenu();

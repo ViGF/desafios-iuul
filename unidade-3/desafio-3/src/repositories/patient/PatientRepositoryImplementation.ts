@@ -1,57 +1,85 @@
-import { Error, ModelStatic } from "sequelize";
+import { ModelStatic } from "sequelize";
 import { DBPatient } from "../../database/models/DBPatient";
-import { Patient, PatientProps } from "../../model/Patient";
+import { PatientProps } from "../../model/Patient";
 import { PatientRepository } from "./PatientRepository";
 
 export class PatientRepositoryImplementation implements PatientRepository {
   model: ModelStatic<DBPatient> = DBPatient;
 
-  async include(patient: Patient): Promise<PatientProps | void> {
+  async include(patient: PatientProps): Promise<PatientProps | void> {
     try {
       const result = await this.model.create({
-        birthdate: Patient.getDateObjet(patient.birthdate).toUTCString(),
+        birthdate: patient.birthdate,
         name: patient.name,
         cpf: patient.cpf,
-      })
+      });
 
-      return result.toJSON()
+      return result.toJSON();
     } catch (error) {
       return;
     }
   }
 
-  async findAll(): Promise<DBPatient[]> {
-    const patients = await this.model.findAll();
-    console.log(patients);
+  async findAll(): Promise<PatientProps[]> {
+    try {
+      const patients = await this.model.findAll();
 
-    return patients;
+      return patients;
+    } catch (error) {
+      return [];
+    }
   }
 
-  // delete(cpf: string): Patient | void {
-  //   const patient = this.findUnique(cpf);
+  async findUnique(cpf: string): Promise<PatientProps | void> {
+    try {
+      const patient = await this.model.findOne({
+        where: {
+          cpf
+        }
+      })
 
-  //   if (patient) {
-  //     this.patients = this.patients.filter(
-  //       (patientInMemory) => patientInMemory.cpf != patient.cpf
-  //     );
+      return patient?.toJSON();
+    } catch (error) {
+      console.log(error)
+      return;
+    }
+  }
 
-  //     return patient;
-  //   } else {
-  //     return;
-  //   }
-  // }
+  async delete(cpf: string): Promise<number | void> {
+    try {
+      const patient = await this.model.destroy({
+        where: {
+          cpf,
+        },
+      });
 
-  // findUnique(cpf: string): Patient | void {
-  //   const patientIndex = this.patients.findIndex(
-  //     (patient) => patient.cpf == cpf
-  //   );
+      return patient;
+    } catch (error) {
+      return;
+    }
+  }
 
-  //   if (patientIndex == -1) {
-  //     return;
-  //   } else {
-  //     const patient = this.patients[patientIndex];
+  async findAllOrderByCpf(): Promise<PatientProps[]> {
+    try {
+      const patients = await this.model.findAll({
+        order: [["cpf", "ASC"]],
+      });
 
-  //     return patient;
-  //   }
-  // }
+      return patients;
+    } catch (error) {
+      return [];
+    }
+  }
+
+  async findAllOrderByName(): Promise<PatientProps[]> {
+    try {
+      const patients = await this.model.findAll({
+        order: [["name", "ASC"]],
+      });
+
+      return patients;
+    } catch (error) {
+      return [];
+    }
+  }
 }

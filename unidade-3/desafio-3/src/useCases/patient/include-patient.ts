@@ -11,22 +11,27 @@ export class IncludePatient {
     const cpfValidated = Patient.validateCpf(cpf);
     const nameValidated = Patient.validateName(name);
     const birthdateValidated = Patient.validateBirthdate(birthdate);
-    // const patientAlreadyExists = new VerifyPatientExists(
-    //   this.patientRepository
-    // ).execute(cpf);
+    const patientAlreadyExists = await new VerifyPatientExists(
+      this.patientRepository
+    ).execute(cpf);
 
-    // if (patientAlreadyExists) {
-    //   return "Paciente já cadastrado!";
-    // }
+    if (patientAlreadyExists) {
+      return "Paciente já cadastrado!";
+    }
 
     if (cpfValidated.value && nameValidated.value && birthdateValidated.value) {
-      const newPatient = new Patient({ cpf, name, birthdate });
+      const patientProps = {
+        cpf,
+        name,
+        birthdate: Patient.getDateObjet(birthdate).toUTCString()
+      }
 
-      const result = await this.patientRepository.include(newPatient);
+      const result = await this.patientRepository.include(patientProps);
+      
       if (result) {
         return "Paciente cadastrado com sucesso!";
       } else {
-        return "Não foi possível salvar as informações";
+        return "Erro: Não foi possível salvar as informações";
       }
     }
 

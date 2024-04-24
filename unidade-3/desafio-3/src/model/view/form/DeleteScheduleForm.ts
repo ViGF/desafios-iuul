@@ -7,10 +7,12 @@ type DeleteScheduleRequest = Omit<ScheduleProps, "endHour">;
 export class DeleteScheduleForm {
   constructor(private prompt: Prompt) {}
 
-  execute(verifyPatientExists: VerifyPatientExists): DeleteScheduleRequest | void {
+  async execute(verifyPatientExists: VerifyPatientExists): Promise<DeleteScheduleRequest | void> {
     const cpf = this.prompt("CPF: ");
 
-    if (verifyPatientExists.execute(cpf) == undefined) {
+    const patientExists = await verifyPatientExists.execute(cpf)
+
+    if (!patientExists) {
       console.log("Erro: paciente não cadastrado");
       return;
     }
@@ -21,10 +23,10 @@ export class DeleteScheduleForm {
       date = this.prompt("Data da consulta: ");
     }
 
-    let startHour = this.prompt("Hora inicial: ");
+    let startHour = this.prompt("Hora inicial (Ex.: 08:45): ");
     while (Schedule.validateStartHour(startHour, date)?.error) {
       console.log(Schedule.validateStartHour(startHour, date).error);
-      startHour = this.prompt("Hora inicial: ");
+      startHour = this.prompt("Hora inicial: (Ex.: 08:45): ");
     }
 
     return {

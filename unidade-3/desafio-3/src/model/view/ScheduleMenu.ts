@@ -22,13 +22,13 @@ export class ScheduleMenu extends Menu {
     ]);
   }
 
-  selectOption(option: number, menuPresentation: MenuPresentation) {
+  async selectOption(option: number, menuPresentation: MenuPresentation) {
     switch (option) {
       case 1:
         const scheduleInfo = new InsertScheduleForm(
           menuPresentation.prompt
         ).execute();
-        const verifyPatientExists = new VerifyPatientExists(
+        const verifyPatientExists = await new VerifyPatientExists(
           menuPresentation.patientRepository
         ).execute(scheduleInfo.cpf);
 
@@ -38,7 +38,9 @@ export class ScheduleMenu extends Menu {
           const includeSchedule = new IncludeSchedule(
             menuPresentation.scheduleRepository
           );
-          const includeScheduleResult = includeSchedule.execute(scheduleInfo);
+          const includeScheduleResult = await includeSchedule.execute(
+            scheduleInfo
+          );
           console.log();
           console.log(includeScheduleResult);
           console.log();
@@ -49,31 +51,28 @@ export class ScheduleMenu extends Menu {
         const verifyIfPatientExists = new VerifyPatientExists(
           menuPresentation.patientRepository
         );
-        const scheduleDeleteInfo = new DeleteScheduleForm(
+        const scheduleDeleteInfo = await new DeleteScheduleForm(
           menuPresentation.prompt
         ).execute(verifyIfPatientExists);
 
         if (scheduleDeleteInfo) {
           //Busca por agendamentos na data informada pelo usuário
-          let listSchedulesByDates = new ListSchedulesByDates(
+          let listSchedulesByDates = await new ListSchedulesByDates(
             menuPresentation.scheduleRepository
           ).execute(
             Schedule.dateObjectToString(scheduleDeleteInfo.date),
             Schedule.dateObjectToString(scheduleDeleteInfo.date)
           );
 
-          //Deixa na lista apenas os agendamentos que são do usuário
-          listSchedulesByDates = listSchedulesByDates.filter(
-            (schedule) => schedule.cpf == scheduleDeleteInfo.cpf
-          );
-
-          if (listSchedulesByDates.length > 0) {
+          if (!listSchedulesByDates) {
+            console.log("Erro: não foi possível buscar pelo agendamento");
+          } else if (listSchedulesByDates.length > 0) {
             //Compara hora do agendamento encontrado com a hora do agendamento a ser cancelado
             const startHourEqual =
               listSchedulesByDates[0].startHour == scheduleDeleteInfo.startHour;
 
             if (startHourEqual) {
-              const deleteScheduleResult = new DeleteSchedule(
+              const deleteScheduleResult = await new DeleteSchedule(
                 menuPresentation.scheduleRepository
               ).execute(scheduleDeleteInfo);
 
@@ -93,53 +92,54 @@ export class ScheduleMenu extends Menu {
         const listType = menuPresentation
           .prompt("Apresentar a agenda T-Toda ou P-Período: ")
           .toLowerCase();
-        let listSchedules: Schedule[] = [];
+
+        let listSchedules: Schedule[] | void = [];
 
         if (listType == "t") {
-          listSchedules = new ListSchedules(
+          listSchedules = await new ListSchedules(
             menuPresentation.scheduleRepository
           ).execute();
         } else if (listType == "p") {
           const { startDate, endDate } = new ScheduleListForm(
             menuPresentation.prompt
           ).execute();
-          listSchedules = new ListSchedulesByDates(
+          listSchedules = await new ListSchedulesByDates(
             menuPresentation.scheduleRepository
           ).execute(startDate, endDate);
         }
-        console.clear();
-        console.log(
-          "-------------------------------------------------------------------"
-        );
-        console.log(
-          "   Data    H. Ini H. Fim Tempo Nome                       Dt.Nasc. "
-        );
-        console.log(
-          "-------------------------------------------------------------------"
-        );
-        listSchedules.map((schedule) => {
-          const patient = new VerifyPatientExists(
-            menuPresentation.patientRepository
-          ).execute(schedule.cpf);
 
+        if (!listSchedules) {
+          console.log("Erro: não foi possível buscar pelo agendamento");
+        } else {
+          //console.clear();
           console.log(
-            fixedWidthString(Schedule.dateObjectToString(schedule.date), 11) +
-              fixedWidthString(
-                Schedule.hourToPresentableFormat(schedule.startHour),
-                7
-              ) +
-              fixedWidthString(
-                Schedule.hourToPresentableFormat(schedule.endHour),
-                7
-              ) +
-              fixedWidthString(schedule.duration, 6) +
-              fixedWidthString(patient!.name, 26) +
-              fixedWidthString(patient!.birthdate, 11)
+            "-------------------------------------------------------------------"
           );
-        });
-        console.log(
-          "-------------------------------------------------------------------"
-        );
+          console.log(
+            "   Data    H. Ini H. Fim Tempo Nome                       Dt.Nasc. "
+          );
+          console.log(
+            "-------------------------------------------------------------------"
+          );
+
+          listSchedules.map(async (schedule) => {
+            const patient = await new VerifyPatientExists(
+              menuPresentation.patientRepository
+            ).execute(schedule.cpf);
+
+            console.log(
+              fixedWidthString(Schedule.dateObjectToString(new Date(schedule.date)), 11) +
+                fixedWidthString(schedule.startHour, 7) +
+                fixedWidthString(schedule.endHour, 7) +
+                fixedWidthString(schedule.duration, 6) +
+                fixedWidthString(patient!.name, 26) +
+                fixedWidthString(patient!.birthdate, 11)
+            );
+          });
+          console.log(
+            "-------------------------------------------------------------------"
+          );
+        }
         break;
       case 4:
         const mainMenu = new MainMenu();

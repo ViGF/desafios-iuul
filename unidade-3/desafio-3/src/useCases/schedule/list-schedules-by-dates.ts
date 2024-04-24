@@ -4,20 +4,19 @@ import { ScheduleRepository } from "../../repositories/schedule/ScheduleReposito
 export class ListSchedulesByDates {
   constructor(private scheduleRepository: ScheduleRepository) {}
 
-  execute(startDate: string, endDate: string) {
-    const allSchedules = this.scheduleRepository.findAll()
+  async execute(startDate: string, endDate: string) {
     
     const startDateObject = Schedule.getDateObjet(startDate)
     const endDateObject = Schedule.getDateObjet(endDate)
+    
+    const schedulesProps = await this.scheduleRepository.findByDate(startDateObject, endDateObject)
 
-    const schedulesInPeriod: Schedule[] = []
+    if (!schedulesProps) {
+      return;
+    }
 
-    allSchedules.map(sch => {
-      if (sch.date >= startDateObject && sch.date <= endDateObject) {
-        schedulesInPeriod.push(sch)
-      }
-    })
+    const schedules = schedulesProps.map((sch) => new Schedule(sch));
 
-    return schedulesInPeriod
+    return schedules
   }
 }

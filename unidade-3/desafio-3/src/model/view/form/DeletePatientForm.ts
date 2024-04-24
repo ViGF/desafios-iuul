@@ -4,10 +4,12 @@ import { VerifyPatientExists } from "../../../useCases/patient/verify-patient-ex
 export class DeletePatientForm {
   constructor(private prompt: Prompt) {}
 
-  execute(verifyPatientExists: VerifyPatientExists) {
+  async execute(verifyPatientExists: VerifyPatientExists) {
     const cpf = this.prompt("CPF: ");
 
-    if (verifyPatientExists.execute(cpf) == undefined) {
+    const patientExists = await verifyPatientExists.execute(cpf)
+
+    if (!patientExists) {
       console.log("Erro: paciente não cadastrado");
       return;
     }

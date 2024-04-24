@@ -5,8 +5,10 @@ import { Patient, PatientProps } from "../../model/Patient";
 export interface PatientRepository {
   model: ModelStatic<DBPatient>;
 
-  include(patient: Patient): Promise<PatientProps | void>;
-  findAll(): Promise<PatientProps[] | void>;
-  //delete(cpf: string): Patient | void;
-  //findUnique(cpf: string): Patient | void;
+  include(patient: PatientProps): Promise<PatientProps | void>;
+  findAll(): Promise<PatientProps[]>;
+  findUnique(cpf: string): Promise<PatientProps | void>;
+  delete(cpf: string): Promise<number | void>;
+  findAllOrderByCpf(): Promise<PatientProps[]>;
+  findAllOrderByName(): Promise<PatientProps[]>;
 }
